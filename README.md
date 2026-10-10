@@ -1,5 +1,4 @@
 # Pink Lens
-
 ---
 
 ## 1. Tema proiectului
