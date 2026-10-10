@@ -1,8 +1,3 @@
-"""
-Rulare:
-    pip install -r requirements.txt
-    streamlit run app.py
-"""
 import numpy as np
 import pydicom
 import streamlit as st
