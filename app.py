@@ -30,7 +30,9 @@ st.markdown(
     .result-benign { background:#E9F5EC; border:1px solid #A9D5B5; }
     .result-title  { font-size: 1.5rem; font-weight: 700; margin: 0; }
     .muted { color: #8E6F7A; font-size: 0.9rem; }
-    [data-testid="stSidebar"] { border-right: 1px solid #F6CAD7; }
+    [data-testid="stSidebar"][aria-expanded="true"] { min-width: 21rem; max-width: 21rem; }
+    [data-testid="stSidebar"][aria-expanded="false"] .sidebar-footer { display: none; }
+    [data-testid="stSidebar"] h2 { padding-top: 0; margin-top: 0; }
     .sidebar-footer {
         position: fixed;
         bottom: 1rem;
@@ -40,7 +42,6 @@ st.markdown(
         font-size: 0.8rem;
         line-height: 1.4;
     }
-    [data-testid="stSidebar"] { min-width: 21rem; max-width: 21rem; }
     .stProgress > div > div > div > div { background-color: #E58FA8; }
     </style>
     """,
