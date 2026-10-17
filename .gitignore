@@ -1,1 +1,21 @@
 .DS_Store
+
+data/external/
+data/raw/
+data/processed/
+
+# LaTeX build files
+docs/*.aux
+docs/*.bbl
+docs/*.blg
+docs/*.idx
+docs/*.ilg
+docs/*.ind
+docs/*.log
+docs/*.lof
+docs/*.lot
+docs/*.out
+docs/*.toc
+docs/*.fls
+docs/*.fdb_latexmk
+docs/*.synctex.gz
