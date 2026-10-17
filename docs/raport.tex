@@ -1,0 +1,567 @@
+%pdflatex raport.tex
+%bibtex raport
+%pdflatex raport.tex
+%pdflatex raport.tex
+
+\documentclass[runningheads,a4paper,11pt]{report}
+
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{caption}
+\usepackage{comment}
+\usepackage{epsfig}
+\usepackage{fancyhdr}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage[colorlinks]{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[romanian]{babel}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{rotating}
+\usepackage{setspace}
+\usepackage{subfigure}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{xcolor}
+
+\geometry{a4paper,top=3cm,left=2cm,right=2cm,bottom=3cm}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{Pink Lens}
+\fancyhead[RE,LO]{Echipa 31}
+\fancyfoot[RE,LO]{MIRPR 2026-2027}
+\fancyfoot[LE,RO]{\thepage}
+
+\renewcommand{\headrulewidth}{2pt}
+\renewcommand{\footrulewidth}{1pt}
+\renewcommand{\headrule}{\hbox to\headwidth{%
+  \color{lime}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrule}{\hbox to\headwidth{%
+  \color{lime}\leaders\hrule height \footrulewidth\hfill}}
+
+  \fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyhead[LE,RO]{Pink Lens}
+  \fancyhead[RE,LO]{Echipa 31}
+  \fancyfoot[RE,LO]{MIRPR 2026-2027}
+  \fancyfoot[LE,RO]{\thepage}
+  \renewcommand{\headrulewidth}{2pt}
+  \renewcommand{\footrulewidth}{1pt}
+}
+
+\hypersetup{
+pdftitle={Pink Lens},
+pdfauthor={Sturza Carina, Sigmirean Andrada},
+pdfkeywords={breast cancer, mammography, deep learning, transfer learning},
+bookmarksnumbered,
+pdfstartview={FitH},
+urlcolor=cyan,
+colorlinks=true,
+linkcolor=red,
+citecolor=green,
+}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\linespread{1}
+
+\makeindex
+
+
+\begin{document}
+
+\begin{titlepage}
+\sloppy
+
+\begin{center}
+UNIVERSITATEA BABEȘ-BOLYAI, CLUJ-NAPOCA, ROMÂNIA
+
+FACULTATEA DE MATEMATICĂ ȘI INFORMATICĂ
+
+\vspace{6cm}
+
+\Huge \textbf{Pink Lens}
+
+\vspace{0.5cm}
+
+\Large AI pentru sănătatea femeilor: identificarea cancerului de sân
+
+\vspace{1cm}
+
+\normalsize -- Raport MIRPR
+
+\end{center}
+
+
+\vspace{4cm}
+
+\begin{flushright}
+{\Large \textbf{Echipa 31}}\\[0.8cm]
+{\large \textbf{Sturza Carina}}\\
+Informatică Română, grupa 236\\
+\texttt{sandra.sturza@ubbcluj.ro}\\[0.5cm]
+{\large \textbf{Sigmirean Andrada}}\\
+Informatică Română, grupa 236\\
+\texttt{sigmirean.andrada@ubbcluj.ro}
+\end{flushright}
+
+\vspace{1cm}
+
+\begin{center}
+2026-2027
+\end{center}
+
+\end{titlepage}
+
+\pagenumbering{gobble}
+
+\begin{abstract}
+Cancerul de sân se numără printre cele mai frecvente tipuri de cancer la femei, iar depistarea timpurie crește semnificativ șansele de vindecare. Interpretarea mamografiilor este însă dificilă: variațiile densității țesutului, structurile suprapuse și diferențele subtile dintre leziunile benigne și cele maligne fac ca examinarea manuală să consume timp și să fie predispusă la erori.
+
+Proiectul \emph{Pink Lens} propune un sistem inteligent care acționează ca un ,,al doilea set de ochi'' pentru radiolog: primește o mamografie și estimează cât de probabil este ca aceasta să conțină o leziune malignă. Metodele luate în considerare sunt modele de învățare profundă (rețele convoluționale, Vision Transformers, rețele neuronale pe grafuri), pre-antrenate pe seturi mari de imagini și apoi adaptate pe mamografii (transfer learning).
+
+Această primă iterație cuprinde descrierea problemei (plastică și formală), analiza lucrărilor relevante din literatură și descrierea funcționalităților prototipului realizat în Streamlit, care permite încărcarea unei imagini DICOM, vizualizarea ei și rularea unei clasificări experimentale. Rezultatele experimentale vor fi prezentate în iterațiile următoare.
+\end{abstract}
+
+
+\tableofcontents
+
+\newpage
+
+\listoftables
+
+\newpage
+
+\setstretch{1.5}
+
+\newpage
+
+\pagenumbering{arabic}
+
+
+\chapter{Introducere}
+\label{chapter:introduction}
+
+\section{Ce? De ce? Cum?}
+\label{section:what}
+
+\textbf{Ce problemă abordăm?} Detectarea cancerului de sân în mamografii și diferențierea dintre leziunile benigne și cele maligne, cu scopul diagnosticării timpurii.
+
+\textbf{De ce este importantă?} Depistarea într-un stadiu incipient crește șansele de vindecare și permite tratamente mai puțin agresive, în timp ce analiza manuală a unui volum mare de imagini este obositoare și poate duce la cazuri ratate sau la alarme false.
+
+\textbf{Cum o abordăm?} Printr-un model de inteligență artificială care primește mamografia și întoarce o probabilitate de malignitate. Modelele considerate sunt pre-antrenate pe alte seturi de date și apoi adaptate pe mamografii. Rezultatul este expus printr-un prototip de aplicație web care are rol de sprijin al deciziei, fără a înlocui medicul.
+
+\section{Structura lucrării}
+\label{section:structure}
+
+Capitolul \ref{section:scientificProblem} descrie problema rezolvată cu ajutorul inteligenței artificiale, într-o variantă plastică și una formală, împreună cu utilizatorii, datele de intrare și ieșire și modul de măsurare a performanței. Capitolul \ref{chapter:stateOfArt} analizează cinci lucrări relevante din literatură. Capitolul \ref{chapter:application} descrie funcționalitățile prototipului de aplicație.
+
+
+\chapter{Problema științifică}
+\label{section:scientificProblem}
+
+\section{Descrierea problemei (varianta plastică)}
+\label{section:problemDefinition}
+
+Să ne imaginăm un radiolog care analizează zeci de mamografii pe zi. Fiecare imagine este o ,,hartă'' în tonuri de gri a sânului, în care țesutul dens, vasele de sânge, glandele și eventualele tumori apar toate ca zone mai deschise sau mai întunecate, adesea suprapuse. O tumoră mică, la început de drum, poate arăta aproape identic cu un țesut sănătos dens, iar diferența dintre o formațiune \textbf{benignă} (inofensivă) și una \textbf{malignă} (periculoasă) este uneori de câțiva pixeli, de o margine ușor neregulată sau de o grupare de micro-calcificări.
+
+Sistemul propus este un ,,al doilea set de ochi'' pentru medic: un model de inteligență artificială care primește mamografia, o analizează și spune:
+\begin{itemize}
+	\item dacă există o zonă suspectă,
+	\item unde se află aceasta,
+	\item cât de probabil este să fie malignă.
+\end{itemize}
+
+AI-ul \textbf{nu înlocuiește medicul}, ci îl ajută să nu rateze cazurile dificile și să-și petreacă timpul acolo unde contează cel mai mult.
+
+\section{Descrierea problemei (varianta formală)}
+\label{section:problemFormal}
+
+\subsection{Mamografia ca date}
+
+O mamografie este o matrice de pixeli, cu $H$ rânduri și $W$ coloane. Fiecare pixel are o valoare numerică de intensitate (de exemplu între 0 și 255, sau între 0 și 65535 la imaginile pe 16 biți): valorile mici corespund zonelor întunecate, iar cele mari zonelor deschise (țesut dens, tumori, calcificări). Imaginea este deci un tabel de numere, iar ,,a vedea o tumoră'' înseamnă a găsi un anumit tipar în acest tabel.
+
+\subsection{Ce vrem să aflăm}
+
+Pentru fiecare imagine există un răspuns corect, stabilit de medici (de obicei confirmat prin biopsie): $0$ pentru benign (sau normal) și $1$ pentru malign.
+
+\subsection{Setul de date}
+
+Avem o colecție de $N$ exemple, fiecare fiind o pereche \emph{(imagine, răspuns corect)}. Acesta este materialul din care modelul învață. O parte din exemple se păstrează deoparte și nu se folosesc la învățare, ci doar la testarea finală.
+
+\subsection{Ce face modelul}
+
+Pentru o imagine nouă, pe care nu a mai văzut-o, modelul calculează un număr $p \in [0,1]$, care spune cât de probabil este ca imaginea să conțină o tumoră malignă: $p$ aproape de 0 înseamnă probabil benign, iar $p$ aproape de 1 înseamnă probabil malign.
+
+Decizia se ia cu un prag: dacă $p$ depășește un prag ales (de exemplu 0,5), imaginea este marcată ca suspectă. Pragul se poate coborî ca să prindem cât mai multe cazuri maligne, cu prețul unor alarme false în plus.
+
+\subsection{Cum învață modelul}
+
+Modelul are multe numere interne (parametri), la început alese aproape la întâmplare. Procesul este iterativ:
+\begin{enumerate}
+	\item i se arată o imagine din setul de date și produce un $p$;
+	\item $p$ se compară cu răspunsul corect, iar diferența dintre ele este ,,eroarea'';
+	\item parametrii se ajustează puțin, în direcția în care eroarea scade;
+	\item se repetă pentru toate imaginile, de mai multe ori.
+\end{enumerate}
+La final, parametrii sunt cei pentru care modelul greșește cât mai puțin pe exemplele văzute și, sperăm, și pe imaginile noi.
+
+\subsection{Dezechilibrul claselor}
+
+Cazurile maligne sunt mult mai rare decât cele benigne sau normale. Dacă, de exemplu, doar 5 imagini din 100 sunt maligne, un model care răspunde mereu ,,benign'' ar avea 95\% acuratețe, deși nu ar detecta niciun cancer. De aceea, la antrenare se acordă o importanță mai mare cazurilor maligne, iar la evaluare se urmăresc metrici precum sensibilitatea (secțiunea \ref{section:performance}), nu doar acuratețea.
+
+\subsection{Variante ale sarcinii}
+
+În funcție de ce cerem modelului, răspunsul poate avea forme diferite (tabelul \ref{tab:tasks}).
+
+\begin{table}[htbp]
+	\caption{Variante ale sarcinii de analiză a mamografiilor.}
+	\label{tab:tasks}
+	\begin{center}
+		\begin{tabular}{p{4cm}p{11cm}}
+			\textbf{Sarcină} & \textbf{Ce primim ca răspuns} \\
+			\hline\hline
+			Clasificare binară & benign sau malign \\
+			Clasificare BI-RADS & o categorie de la 1 la 5 (cât de suspectă este imaginea) \\
+			Detecție / localizare & un chenar în jurul leziunii, plus scorul de încredere \\
+			Segmentare & o mască, adică un tabel de aceeași mărime cu imaginea, cu 1 pe pixelii care aparțin leziunii și 0 în rest \\
+		\end{tabular}
+	\end{center}
+\end{table}
+
+\subsection{De ce un algoritm inteligent}
+
+Diferențele dintre țesutul sănătos și o leziune sunt subtile, variază de la o pacientă la alta și nu pot fi descrise printr-un set simplu de reguli scrise de mână. Un model de învățare automată extrage singur tiparele relevante din exemple, iar rezultatul lui poate fi evaluat obiectiv pe date pe care nu le-a văzut. Dezavantajele sunt necesarul de date etichetate (greu de obținut în imagistica medicală), riscul de supra-adaptare la seturi mici și dificultatea de a explica de ce a luat modelul o anumită decizie.
+
+\subsection{Arhitecturi propuse}
+
+\begin{itemize}
+	\item \textbf{Transformere vizuale (ViT, DeiT, CrossViT, MammoViT):} imaginea este împărțită în patch-uri $16 \times 16$, tratate ca ,,tokeni'', iar mecanismul de self-attention modelează relațiile dintre regiuni îndepărtate ale imaginii.
+	\item \textbf{Rețele neuronale pe grafuri (GNN / Graph CNN):} imaginea este reprezentată ca un graf $G = (V, E, X)$, unde nodurile $V$ sunt regiuni sau patch-uri (sau zone semnificative medical), muchiile $E$ codifică vecinătatea sau similaritatea, iar $X$ conține trăsăturile fiecărui nod. Modelul propagă informație între noduri pentru a clasifica întregul graf sau fiecare nod.
+	\item \textbf{Transfer learning:} modelele sunt pre-antrenate pe seturi mari de imagini (de exemplu ImageNet) și apoi \emph{fine-tunate} pe mamografii, ceea ce reduce necesarul de date medicale etichetate.
+\end{itemize}
+
+\section{Ce anume se rezolvă}
+\label{section:whatSolved}
+
+Se rezolvă \textbf{detectarea și caracterizarea automată a tumorilor mamare} (benigne vs.\ maligne) în imagini de mamografie, cu scopul \textbf{diagnosticării timpurii} a cancerului de sân. Dificultăți specifice problemei:
+\begin{itemize}
+	\item variații mari ale densității țesutului mamar (sânii denși ,,maschează'' tumorile);
+	\item structuri suprapuse în proiecția 2D;
+	\item diferențe subtile între leziunile benigne și cele maligne;
+	\item leziuni foarte mici față de dimensiunea imaginii (de ordinul a câțiva pixeli dintr-o imagine de mii de pixeli);
+	\item dezechilibru puternic al claselor și număr limitat de date etichetate.
+\end{itemize}
+
+\section{De ce este importantă}
+\label{section:whyImportant}
+
+\begin{itemize}
+	\item \textbf{Impact asupra vieții:} cancerul de sân este printre cele mai frecvente tipuri de cancer la femei, iar depistarea într-un stadiu incipient crește semnificativ șansele de vindecare și permite tratamente mai puțin agresive.
+	\item \textbf{Limitele analizei manuale:} interpretarea de către radiologi este consumatoare de timp, obositoare și predispusă la erori umane (cazuri ratate sau alarme false), iar între medici apar variații de interpretare.
+	\item \textbf{Volumul mare de screening:} programele de screening generează un număr mare de imagini, în timp ce numărul de radiologi este limitat.
+	\item \textbf{Reducerea biopsiilor inutile:} o clasificare mai bună între benign și malign poate reduce procedurile invazive și stresul pacientelor.
+	\item \textbf{Egalizarea accesului:} un sistem de sprijin decizional poate ajuta și unitățile medicale cu mai puțină experiență de specialitate.
+\end{itemize}
+
+\section{Utilizatorii sistemului}
+\label{section:users}
+
+\begin{table}[htbp]
+	\caption{Utilizatorii sistemului și modul în care îl folosesc.}
+	\label{tab:users}
+	\begin{center}
+		\begin{tabular}{p{5cm}p{10cm}}
+			\textbf{Utilizator} & \textbf{Cum folosește sistemul} \\
+			\hline\hline
+			Medici radiologi (utilizatori principali) & Primesc o ,,a doua opinie'' automată, zone marcate ca suspecte și un scor de risc \\
+			Medici oncologi / senologi & Folosesc rezultatul pentru prioritizarea cazurilor și decizia privind investigații suplimentare \\
+			Unități medicale și programe de screening & Triază rapid un volum mare de examinări \\
+			Paciente (beneficiari indirecți) & Beneficiază de un diagnostic mai rapid și mai precis \\
+		\end{tabular}
+	\end{center}
+\end{table}
+
+Decizia finală rămâne întotdeauna la medic.
+
+\section{Date de intrare și de ieșire}
+\label{section:io}
+
+\subsection{Date de intrare}
+
+\begin{itemize}
+	\item \textbf{Tip:} imagini medicale, adică mamografii digitale (tonuri de gri, rezoluție mare, de obicei în format DICOM sau PGM/PNG după conversie).
+	\item \textbf{Variante:} imagini 2D (vizualizări CC și MLO) și, opțional, tomosinteză digitală (DBT, volum 3D de felii).
+	\item \textbf{Metadate / adnotări (pentru antrenare):} etichete benign/malign, categorii BI-RADS, poziția și conturul leziunii (bounding box sau mască), densitatea sânului.
+	\item \textbf{Preprocesare tipică:} decupare, normalizare a intensității, redimensionare, augmentare (rotiri, flip-uri, modificări de contrast), împărțirea în patch-uri sau construirea grafului.
+\end{itemize}
+
+Seturile de date publice propuse sunt prezentate în tabelul \ref{tab:datasets}.
+
+\begin{table}[htbp]
+	\caption{Seturi de date publice propuse.}
+	\label{tab:datasets}
+	\begin{center}
+		\begin{tabular}{p{4.5cm}p{10.5cm}}
+			\textbf{Set de date} & \textbf{Descriere scurtă} \\
+			\hline\hline
+			MIAS & Set clasic, mic (322 de imagini), cu adnotări ale anomaliilor \\
+			DDSM / CBIS-DDSM & Set mare de mamografii de screening, cu leziuni adnotate și diagnostic confirmat \\
+			INbreast & Mamografii digitale de calitate înaltă (410 imagini), cu adnotări precise \\
+			Breast Cancer Screening DBT & Date de tomosinteză digitală a sânului (volume 3D) \\
+		\end{tabular}
+	\end{center}
+\end{table}
+
+\subsection{Date de ieșire}
+
+\begin{itemize}
+	\item \textbf{Eticheta de clasă:} benign / malign (sau categoria BI-RADS);
+	\item \textbf{Probabilitatea / scorul de risc} asociat predicției ($p \in [0,1]$);
+	\item \textbf{Localizarea leziunii:} chenar (bounding box) sau hartă de atenție / mască de segmentare, pentru a arăta medicului \emph{unde} se află zona suspectă și pentru interpretabilitate.
+\end{itemize}
+
+\section{Cum se măsoară performanța}
+\label{section:performance}
+
+Evaluarea se face pe un set de test separat (preferabil \textbf{la nivel de pacientă}, pentru a evita scurgerea de informație între antrenare și test), eventual cu validare încrucișată.
+
+\subsection{Metrici de clasificare}
+
+În tabelul \ref{tab:metrics}, $TP$, $TN$, $FP$ și $FN$ sunt numărul de adevărați pozitivi, adevărați negativi, fals pozitivi și, respectiv, fals negativi.
+
+\begin{table}[htbp]
+	\caption{Metrici de clasificare.}
+	\label{tab:metrics}
+	\begin{center}
+		\begin{tabular}{p{3.6cm}p{4.2cm}p{7.2cm}}
+			\textbf{Metrică} & \textbf{Ce spune} & \textbf{De ce contează aici} \\
+			\hline\hline
+			Sensibilitate (Recall) $\frac{TP}{TP+FN}$ & Câte cazuri maligne sunt detectate & Cea mai importantă: un fals negativ înseamnă un cancer ratat \\
+			Specificitate $\frac{TN}{TN+FP}$ & Câte cazuri sănătoase/benigne sunt recunoscute corect & Reduce alarmele false și biopsiile inutile \\
+			Precizie (Precision) $\frac{TP}{TP+FP}$ & Din cazurile semnalate, câte sunt într-adevăr maligne & Încrederea în alerte \\
+			F1-score & Media armonică a preciziei și recall-ului & Util la clase dezechilibrate \\
+			Acuratețe & Procentul total de predicții corecte & Informativă doar împreună cu celelalte, din cauza dezechilibrului claselor \\
+			AUC-ROC / AUC-PR & Calitatea separării claselor, independent de prag & Metrica standard în literatura medicală \\
+			Matrice de confuzie & Distribuția completă a erorilor & Analiza tipurilor de erori \\
+		\end{tabular}
+	\end{center}
+\end{table}
+
+\subsection{Metrici de localizare și segmentare (dacă este cazul)}
+
+\begin{itemize}
+	\item \textbf{IoU} (Intersection over Union) și \textbf{coeficientul Dice}, pentru suprapunerea dintre zona prezisă și cea adnotată de medic;
+	\item \textbf{FROC} (Free-Response ROC), adică sensibilitatea în funcție de numărul de fals pozitive per imagine.
+\end{itemize}
+
+\subsection{Criterii suplimentare}
+
+\begin{itemize}
+	\item \textbf{Generalizare:} performanța la antrenarea pe un set de date și testarea pe altul (de exemplu CBIS-DDSM $\rightarrow$ INbreast);
+	\item \textbf{Calibrare:} măsura în care probabilitățile prezise corespund frecvenței reale (de exemplu Expected Calibration Error);
+	\item \textbf{Interpretabilitate:} calitatea hărților de atenție (Grad-CAM, attention maps) evaluată împreună cu medicul;
+	\item \textbf{Comparația cu radiologii:} performanța modelului față de cea a medicilor, singur și ca sistem de asistare;
+	\item \textbf{Eficiență:} timpul de inferență și resursele necesare;
+	\item \textbf{Comparația cu modele de referință (baseline):} CNN clasice, ViT, DeiT, CrossViT, MammoViT și variantele bazate pe GNN.
+\end{itemize}
+
+
+\chapter{Stadiul actual / Related work}
+\label{chapter:stateOfArt}
+
+Acest capitol prezintă cinci lucrări relevante pentru identificarea cancerului de sân în imagini medicale. Pentru fiecare sunt descrise datele folosite, algoritmii de AI, performanța obținută, librăriile și tehnologiile folosite și, acolo unde există, codul public.
+
+\section{Deep Learning to Improve Breast Cancer Detection on Screening Mammography (Shen et al., 2019)}
+\label{section:shen}
+
+Articol publicat în \emph{Scientific Reports}~\cite{shen2019}.
+
+\begin{itemize}
+	\item \textbf{Date:} CBIS-DDSM (mamografii digitizate de pe film) pentru antrenare și testare, INbreast (mamografii digitale) pentru validare.
+	\item \textbf{Algoritm:} rețea complet convoluțională, antrenată ,,end-to-end''. Adnotările leziunilor sunt necesare doar în prima etapă de antrenare, apoi clasificatorul pe imaginea întreagă folosește doar eticheta imaginii (cancer / fără cancer).
+	\item \textbf{Performanță:}
+	\begin{itemize}
+		\item CBIS-DDSM: AUC 0,88 pentru cel mai bun model și 0,91 prin medierea a patru modele (sensibilitate 86,1\%, specificitate 80,1\%);
+		\item INbreast: AUC 0,95 pentru cel mai bun model și 0,98 cu patru modele (sensibilitate 86,7\%, specificitate 96,1\%).
+	\end{itemize}
+	\item \textbf{Librării și tehnologii:} Python cu Keras/TensorFlow (de confirmat în README-ul repository-ului; un issue din repository menționează o versiune care rulează pe Python 3 și TF 2).
+	\item \textbf{Cod:} \url{https://github.com/lishen/end2end-all-conv}
+\end{itemize}
+
+\section{Deep Neural Networks Improve Radiologists' Performance in Breast Cancer Screening (Wu et al., 2020)}
+\label{section:wu}
+
+Articol publicat în \emph{IEEE Transactions on Medical Imaging}~\cite{wu2020}, realizat la NYU.
+
+\begin{itemize}
+	\item \textbf{Date:} peste 200.000 de examene de screening (peste 1.000.000 de imagini), cu etichete confirmate prin biopsie.
+	\item \textbf{Algoritm:} CNN cu arhitectură în două etape. O rețea de capacitate mare lucrează la nivel de patch, antrenată cu etichete la nivel de pixel, alături de o rețea care învață din etichete la nivel de sân. Se folosește și preantrenare pe clasificarea BI-RADS.
+	\item \textbf{Performanță:} AUC 0,895 la predicția prezenței cancerului pe populația de screening. Într-un studiu cu 14 radiologi (câte 720 de examene fiecare), modelul este la nivelul radiologilor experimentați. Un model hibrid (media dintre predicția radiologului și a rețelei) este mai precis decât fiecare separat.
+	\item \textbf{Librării și tehnologii:} PyTorch (modelul care generează heatmap-uri și modelele de clasificare), plus o implementare TensorFlow a modelului la nivel de imagine.
+	\item \textbf{Cod:} \url{https://github.com/nyukat/breast_cancer_classifier} (modele preantrenate publice).
+\end{itemize}
+
+\section{MammoViT: A Custom Vision Transformer Architecture for Accurate BIRADS Classification in Mammogram Analysis (Al Mansour et al., 2025)}
+\label{section:mammovit}
+
+Articol publicat în \emph{Diagnostics}~\cite{mammovit2025}.
+
+\begin{itemize}
+	\item \textbf{Date:} KAU-BCMD (King Abdulaziz University Mammogram Dataset): 1.416 cazuri de pacienți și 5.662 de mamografii în format DICOM, adnotate de trei radiologi. Clasele BI-RADS folosite sunt 1, 3, 4 și 5, puternic dezechilibrate. Setul este public pe Kaggle: \url{https://www.kaggle.com/datasets/asmaasaad/king-abdulaziz-university-mammogram-dataset}.
+	\item \textbf{Algoritm:} pipeline în mai mulți pași:
+	\begin{enumerate}
+		\item ResNet50 preantrenat pe ImageNet, ca extractor de trăsături (imagini redimensionate la $224 \times 224$);
+		\item SMOTE, pentru echilibrarea claselor;
+		\item Vision Transformer, cu hiperparametri optimizați prin Keras Tuner (RandomSearch) și validare încrucișată în 5 pliuri.
+	\end{enumerate}
+	\item \textbf{Performanță:} acuratețe de 97,4\% la clasificarea în 4 categorii BI-RADS.
+	\item \textbf{Librării și tehnologii:} TensorFlow, Keras, Keras Tuner, NumPy, Pandas, scikit-learn (SMOTE, StandardScaler).
+\end{itemize}
+
+\section{Enhancing Breast Cancer Detection with Vision Transformers and Graph Neural Networks (Cai et al., 2025)}
+\label{section:cai}
+
+Preprint publicat pe arXiv~\cite{cai2025}.
+
+\begin{itemize}
+	\item \textbf{Date:} CBIS-DDSM, 10.239 de imagini mamografice (normale și anormale), împărțite 70\% antrenare, 10\% validare și 20\% test. Imaginile sunt redimensionate la $224 \times 224$, normalizate, cu egalizare de histogramă și augmentare (flip, rotații de $\pm 15^{\circ}$, scalare).
+	\item \textbf{Algoritm:} model hibrid ViT + GNN:
+	\begin{itemize}
+		\item un ViT-B/16 preantrenat pe ImageNet-21k extrage trăsături globale din întreaga imagine;
+		\item imaginea este împărțită în patru cadrane, care devin cele patru noduri ale unui graf complet conectat, procesat de două straturi GCN;
+		\item trăsăturile globale și cele din graf sunt concatenate și fuzionate cu atenție multi-head, apoi un strat final clasifică normal vs.\ anormal;
+		\item antrenare cu o funcție de cost contrastivă (inspirată de InfoNCE) și optimizatorul AdamW.
+	\end{itemize}
+	\item \textbf{Performanță:} acuratețe 84,2\%, precizie 83,0\%, recall 85,6\%, F1 0,84, peste ViT-B/16 (80,3\%), DenseNet-121 (79,2\%), EfficientNet-B0 (81,0\%), Inception-v3 (80,8\%) și YOLOv5 (82,1\%). În studiul de ablație, ViT singur are 81,5\%, iar GNN singur 79,8\%.
+	\item \textbf{Librării și tehnologii:} PyTorch și Deep Graph Library (DGL) pentru partea de GNN, antrenare pe GPU NVIDIA RTX 3090 (batch size 32, 20 de epoci).
+\end{itemize}
+
+\section{A Data Set and Deep Learning Algorithm for the Detection of Masses and Architectural Distortions in Digital Breast Tomosynthesis Images (Buda et al., 2021)}
+\label{section:buda}
+
+Articol publicat în \emph{JAMA Network Open}, însoțit de un set de date public~\cite{buda2021}.
+
+DBT (\emph{Digital Breast Tomosynthesis}, tomosinteză digitală a sânului) este un fel de mamografie 3D: în loc de o singură imagine 2D, se obține un volum, adică o stivă de ,,felii'' prin sân.
+
+\begin{itemize}
+	\item \textbf{Date:} 22.032 de volume DBT reconstruite, din 5.610 examinări ale 5.060 de paciente, cu mase și distorsiuni arhitecturale adnotate de doi radiologi. Setul este publicat pe The Cancer Imaging Archive.
+	\item \textbf{Algoritm:} model de detecție într-o singură fază (single-phase), propus ca punct de plecare (baseline) pentru cercetări viitoare.
+	\item \textbf{Performanță:} sensibilitate de 65\% la 2 fals pozitive per volum DBT, pe un set de test de 460 de examene de la 418 paciente. Într-o competiție organizată ulterior pe același set, cu 8 echipe, cea mai bună (NYU B-Team) a obținut o sensibilitate medie de 0,957 pe leziunile biopsiate.
+	\item \textbf{Librării și tehnologii:} lista nu a fost găsită în sursele consultate.
+\end{itemize}
+
+\section{Sinteză}
+\label{section:synthesis}
+
+Tabelul \ref{tab:related} compară pe scurt lucrările analizate. Valorile nu sunt direct comparabile între ele, deoarece lucrările folosesc seturi de date, sarcini și metrici diferite.
+
+\begin{table}[htbp]
+	\caption{Sinteza lucrărilor relevante.}
+	\label{tab:related}
+	\begin{center}
+		\begin{tabular}{p{2.6cm}p{3.6cm}p{4.2cm}p{4.2cm}}
+			\textbf{Lucrare} & \textbf{Date} & \textbf{Metodă} & \textbf{Rezultat principal} \\
+			\hline\hline
+			Shen et al., 2019 & CBIS-DDSM, INbreast & CNN complet convoluțional, end-to-end & AUC 0,91 (CBIS-DDSM), 0,98 (INbreast) cu 4 modele \\
+			Wu et al., 2020 & peste 200.000 de examene & CNN în două etape (patch + sân) & AUC 0,895, nivel de radiolog experimentat \\
+			Al Mansour et al., 2025 & KAU-BCMD, 5.662 imagini & ResNet50 + SMOTE + ViT & acuratețe 97,4\% (4 clase BI-RADS) \\
+			Cai et al., 2025 & CBIS-DDSM, 10.239 imagini & ViT + GNN & acuratețe 84,2\% (normal vs.\ anormal) \\
+			Buda et al., 2021 & 22.032 de volume DBT & detector într-o singură fază & sensibilitate 65\% la 2 FP/volum \\
+		\end{tabular}
+	\end{center}
+\end{table}
+
+Lucrările \ref{section:mammovit} și \ref{section:cai} sunt cele mai apropiate de arhitecturile propuse în tema proiectului (ViT și GNN), în timp ce lucrările \ref{section:shen} și \ref{section:wu} oferă valori de referință (AUC, sensibilitate, specificitate) pentru comparație. Lucrarea \ref{section:buda} se referă la tomosinteză, o modalitate diferită de mamografia 2D.
+
+
+\chapter{Aplicația (studiu de caz)}
+\label{chapter:application}
+
+\section{Descrierea aplicației și funcționalitățile principale}
+\label{section:appDescription}
+
+\emph{PinkLens} este un prototip de cercetare pentru identificarea cancerului de sân în mamografii. Aplicația este construită cu Streamlit și permite încărcarea unei imagini DICOM, vizualizarea ei și rularea unei clasificări experimentale (malign / benign) realizate de un model AI. Rularea se face cu:
+
+\begin{verbatim}
+pip install -r requirements.txt
+streamlit run app.py
+\end{verbatim}
+
+\subsection{Încărcarea imaginii}
+
+\begin{itemize}
+	\item Utilizatorul încarcă o mamografie în format \textbf{DICOM} (\texttt{.dcm} sau \texttt{.dicom}).
+	\item Până la încărcarea unui fișier, aplicația afișează un mesaj care invită la încărcare și nu arată restul interfeței.
+	\item Dacă fișierul nu poate fi citit, aplicația afișează un mesaj de eroare cu motivul și se oprește fără să se blocheze.
+\end{itemize}
+
+\subsection{Citirea și pregătirea imaginii DICOM}
+
+Funcția \texttt{load\_dicom} citește fișierul cu \texttt{pydicom} și transformă datele brute într-o imagine afișabilă:
+\begin{itemize}
+	\item \textbf{Rescale:} aplică \texttt{RescaleSlope} și \texttt{RescaleIntercept}, dacă există în fișier.
+	\item \textbf{Windowing:} folosește \texttt{WindowCenter} și \texttt{WindowWidth} pentru contrast și luminozitate. Dacă lipsesc, folosește percentilele 0,5 și 99,5 ale valorilor pixelilor.
+	\item \textbf{MONOCHROME1:} imaginile cu valori inversate sunt corectate automat.
+	\item \textbf{Fișiere cu mai multe cadre} (de exemplu tomosinteză): se folosește cadrul din mijloc.
+\end{itemize}
+Rezultatul este o imagine \texttt{uint8} în tonuri de gri, folosită atât pentru afișare, cât și ca intrare pentru model.
+
+\subsection{Detalii imagine}
+
+Sub titlul ,,Detalii imagine'' apar metadatele citite din fișier. Se afișează doar câmpurile care există efectiv în DICOM (tabelul \ref{tab:dicomtags}).
+
+\begin{table}[htbp]
+	\caption{Câmpurile afișate în secțiunea ,,Detalii imagine''.}
+	\label{tab:dicomtags}
+	\begin{center}
+		\begin{tabular}{p{5cm}p{6cm}}
+			\textbf{Câmp afișat} & \textbf{Tag DICOM} \\
+			\hline\hline
+			Lateralitate & \texttt{ImageLaterality} / \texttt{Laterality} \\
+			Proiecție & \texttt{ViewPosition} \\
+			Modalitate & \texttt{Modality} \\
+			Dimensiune & calculată din imagine \\
+			Vârstă pacient & \texttt{PatientAge} \\
+			Data studiului & \texttt{StudyDate} \\
+		\end{tabular}
+	\end{center}
+\end{table}
+
+Fișierele DICOM din multe seturi de date publice sunt anonimizate sau convertite și au puține tag-uri completate (de exemplu \texttt{Modality: OT}, adică ,,Other''). De aceea apar adesea doar modalitatea și dimensiunea. Numele și ID-ul pacientului nu sunt afișate intenționat, fiind date personale.
+
+\subsection{Analiza cu AI}
+
+\begin{itemize}
+	\item Butonul \textbf{Analizează} rulează funcția \texttt{predict(image)}.
+	\item Rezultatul apare ca un card colorat: roz pal pentru \emph{Suspect de malign} și verde pal pentru \emph{Probabil benign}.
+	\item Sub card sunt afișate probabilitățile pe clase, cu bare de progres.
+	\item Se afișează o recomandare: pentru cazurile suspecte, evaluare suplimentară de către un radiolog (de exemplu biopsie, ecografie, RMN); pentru celelalte, un mesaj că nu au fost detectate semne suspecte la pragul ales.
+\end{itemize}
+
+\subsection{Pragul de decizie}
+
+În sidebar există un slider pentru \textbf{pragul de decizie} (între 0,05 și 0,95, implicit 0,50). Un caz este marcat ca malign dacă probabilitatea de malign este mai mare sau egală cu pragul. Pragul poate fi ajustat pentru a compara comportamentul modelului la sensibilități diferite.
+
+\subsection{Interfața}
+
+\begin{itemize}
+	\item Temă roz pastel, definită în \texttt{.streamlit/config.toml} și completată cu CSS în \texttt{app.py}.
+	\item Sidebar cu o scurtă descriere a aplicației, slider-ul pentru prag și, în partea de jos, nota ,,Instrument de cercetare. Rezultatul nu înlocuiește evaluarea unui medic radiolog.''
+	\item Layout pe două coloane: imaginea mamografică în stânga, detaliile și rezultatul în dreapta.
+\end{itemize}
+
+
+\bibliographystyle{plain}
+\bibliography{BibAll}
+
+\end{document}
